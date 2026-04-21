@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Prep – London System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0f172a;
+      --s1:      rgba(30,41,59,0.88);
+      --s2:      rgba(15,23,42,0.97);
+      --accent:  #38bdf8;
+      --accent2: #818cf8;
+      --text:    #f8fafc;
+      --muted:   #94a3b8;
+      --green:   #10b981;
+      --blue:    #3b82f6;
+      --red:     #f43f5e;
+      --border:  rgba(255,255,255,0.08);
+      --sq-light:#dde6ed;
+      --sq-dark: #4a6478;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 14px 22px;
+      background: radial-gradient(ellipse at 80% 0%, #1a3a4f 0%, var(--bg) 65%);
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 1.05rem; font-weight: 700; }
+
+    .pill {
+      display: flex;
+      gap: 10px;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      backdrop-filter: blur(12px);
+    }
+    #stat-badge { color: var(--accent); }
+
+    /* ── COACH ── */
+    #coach-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    #avatar {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--s1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(56,189,248,0.25);
+    }
+    #bubble {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 0 12px 12px 12px;
+      padding: 10px 14px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      flex: 1;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      transition: background .25s, border-color .25s;
+      backdrop-filter: blur(12px);
+    }
+    #coach-text { transition: opacity 0.15s; }
+    #bubble.ok   { background: rgba(16,185,129,.13); border-color: var(--green); }
+    #bubble.good { background: rgba(59,130,246,.13); border-color: var(--blue); }
+    #bubble.bad  { background: rgba(244,63,94,.13);  border-color: var(--red); }
+
+    /* ── OPTIONS ── */
+    #options {
+      display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 12px;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.78rem;
+    }
+    #options.show { display: flex; }
+    .opt-label { color: var(--muted); font-size: 0.7rem; width: 100%; }
+    .chip {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid;
+      background: none;
+      transition: transform .15s;
+    }
+    .chip:hover { transform: scale(1.07); }
+    .chip.c { color: var(--green); border-color: var(--green); background: rgba(16,185,129,.1); }
+    .chip.p { color: var(--blue);  border-color: var(--blue);  background: rgba(59,130,246,.1); }
+
+    /* ── BOARD ── */
+    #board-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 18px 55px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+      user-select: none;
+    }
+
+    #board-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      width: 100%;
+      height: 100%;
+    }
+
+    .sq {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .sq.light { background: var(--sq-light); }
+    .sq.dark  { background: var(--sq-dark); }
+    .sq.sel   { background: rgba(56,189,248,.55) !important; }
+    .sq.last-w { background: rgba(245,158,11,.5) !important; }
+    .sq.last-b { background: rgba(245,158,11,.35) !important; }
+
+    /* legal move dot */
+    .sq.dest::after {
+      content: '';
+      position: absolute;
+      width: 32%;
+      height: 32%;
+      background: rgba(0,0,0,.22);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    /* capture ring */
+    .sq.dest-cap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 4px solid rgba(0,0,0,.22);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* piece */
+    .pc {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(18px, 6.5vw, 52px);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .pc.w { color: #fff;   text-shadow: 0 1px 3px #000, 0 0 7px rgba(0,0,0,.9); }
+    .pc.b { color: #111;   text-shadow: 0 1px 2px rgba(255,255,255,.25); }
+
+    /* file/rank labels */
+    .lbl-f {
+      position: absolute;
+      bottom: 1px; right: 2px;
+      font-size: 9px;
+      font-weight: 700;
+      opacity: .55;
+      pointer-events: none;
+    }
+    .lbl-r {
+      position: absolute;
+      top: 1px; left: 2px;
+      font-size: 9px;
+      font-weight: 700;
+      opacity: .55;
+      pointer-events: none;
+    }
+    .sq.light .lbl-f, .sq.light .lbl-r { color: var(--sq-dark); }
+    .sq.dark  .lbl-f, .sq.dark  .lbl-r { color: var(--sq-light); }
+
+    /* flash overlay */
+    #flash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .1s;
+    }
+    #flash.fok  { background: rgba(16,185,129,.22); opacity: 1; }
+    #flash.fbad { background: rgba(244,63,94,.22);  opacity: 1; }
+    #flash.fgood{ background: rgba(59,130,246,.18); opacity: 1; }
+
+    /* hint arrow */
+    #arrow-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ── CONTROLS ── */
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ctrl {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, transform .15s;
+    }
+    .ctrl:hover:not(:disabled) { background: rgba(255,255,255,.1); transform: translateY(-1px); }
+    .ctrl:disabled { opacity: .35; cursor: not-allowed; }
+
+    #prog-wrap {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    #prog-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 3px;
+      transition: width .55s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── VARIATION TABS ── */
+    #var-tabs {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      margin-top: auto;
+    }
+    #var-tabs::-webkit-scrollbar { display: none; }
+    .vtab {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 13px;
+      border-radius: 99px;
+      font-family: inherit;
+      font-size: .7rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all .2s;
+    }
+    .vtab:hover { color: var(--text); }
+    .vtab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+    /* ── MODAL ── */
+    #modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.88);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      transition: opacity .3s;
+    }
+    #modal.hidden { opacity: 0; pointer-events: none; }
+    #modal-box {
+      background: var(--s2);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px 24px 24px;
+      max-width: 360px;
+      width: 92%;
+      text-align: center;
+      box-shadow: 0 40px 80px rgba(0,0,0,.9);
+    }
+    #m-icon  { font-size: 2.4rem; margin-bottom: 9px; }
+    #m-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
+    #m-tag   { font-size: .67rem; font-weight: 700; text-transform: uppercase;
+               letter-spacing: .07em; color: var(--muted); margin-bottom: 13px; }
+    #m-idea  { font-size: .87rem; line-height: 1.6; margin-bottom: 16px; color: #cbd5e1; }
+    #m-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 20px; }
+    .m-chip {
+      background: rgba(56,189,248,.1);
+      border: 1px solid rgba(56,189,248,.25);
+      border-radius: 7px;
+      padding: 3px 9px;
+      font-size: .74rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    #m-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #000;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: .93rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    #m-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,.35); }
+
+    @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 100%{transform:scale(1)} }
+    .pop { animation: pop .5s ease-out; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">🏰 Chess Prep</div>
+    <div class="pill">
+      <span id="stat-badge">🌑 Lehrling</span>
+      <span id="stat-score">0 Pkt.</span>
+    </div>
+  </header>
+
+  <div id="coach-row">
+    <div id="avatar">♞</div>
+    <div id="bubble"><span id="coach-text">Willkommen! Wähle eine Variante.</span></div>
+  </div>
+
+  <div id="options"></div>
+
+  <div id="board-wrap">
+    <div id="board-grid"></div>
+    <svg id="arrow-svg" viewBox="0 0 800 800" preserveAspectRatio="none"></svg>
+    <div id="flash"></div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl" id="btn-back" disabled>◀ Zurück</button>
+    <button class="ctrl" id="btn-hint">💡 Tipp</button>
+    <div id="prog-wrap"><div id="prog-fill"></div></div>
+  </div>
+
+  <div id="var-tabs"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div id="modal-box">
+    <div id="m-icon">♞</div>
+    <div id="m-title">London System</div>
+    <div id="m-tag">Zentrale Idee</div>
+    <div id="m-idea"></div>
+    <div id="m-chips"></div>
+    <button id="m-btn">Training starten →</button>
+  </div>
+</div>
+
+<!-- LOCAL chess.js (no CDN needed) -->
+<script src="./chess-umd.js"></script>
+<script>
+/* ════════════════════════════════════════════
+   PIECES
+   ════════════════════════════════════════════ */
+const GLYPHS = {
+  w: { k:'♔', q:'♕', r:'♖', b:'♗', n:'♘', p:'♙' },
+  b: { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' }
+};
+
+/* ════════════════════════════════════════════
+   BOARD RENDERER
+   ════════════════════════════════════════════ */
+const FILES = ['a','b','c','d','e','f','g','h'];
+const RANKS = [8,7,6,5,4,3,2,1]; // top-to-bottom display
+
+class BoardUI {
+  constructor(gridEl, svgEl, flashEl, onMove) {
+    this.grid  = gridEl;
+    this.svg   = svgEl;
+    this.flash = flashEl;
+    this.onMove = onMove;
+
+    this.chess    = new Chess();
+    this.selected = null;  // currently selected square
+    this.dests    = {};    // legal dests for selected square
+    this.lastMove = null;  // {from, to}
+    this.locked   = false;
+
+    this._buildGrid();
+  }
+
+  _buildGrid() {
+    this.grid.innerHTML = '';
+    this.squares = {};
+
+    for (const rank of RANKS) {
+      for (const file of FILES) {
+        const sq = file + rank;
+        const fileIdx = FILES.indexOf(file);
+        const rankIdx = rank - 1;
+        const isDark = (fileIdx + rankIdx) % 2 === 0;
+
+        const div = document.createElement('div');
+        div.className = 'sq ' + (isDark ? 'dark' : 'light');
+        div.dataset.sq = sq;
+
+        // Labels: rank on first file, file on last rank
+        if (fileIdx === 0) {
+          const lr = document.createElement('span');
+          lr.className = 'lbl-r';
+          lr.textContent = rank;
+          div.appendChild(lr);
+        }
+        if (rank === 1) {
+          const lf = document.createElement('span');
+          lf.className = 'lbl-f';
+          lf.textContent = file;
+          div.appendChild(lf);
+        }
+
+        div.addEventListener('click', () => this._click(sq));
+        this.grid.appendChild(div);
+        this.squares[sq] = div;
+      }
+    }
+    this._render();
+  }
+
+  _render() {
+    for (const [sq, div] of Object.entries(this.squares)) {
+      // Clear dynamic classes
+      div.classList.remove('sel', 'last-w', 'last-b', 'dest', 'dest-cap');
+      // Clear piece
+      const oldPc = div.querySelector('.pc');
+      if (oldPc) oldPc.remove();
+
+      // Draw piece
+      const piece = this.chess.get(sq);
+      if (piece) {
+        const span = document.createElement('span');
+        span.className = 'pc ' + piece.color;
+        span.textContent = GLYPHS[piece.color][piece.type];
+        div.appendChild(span);
+      }
+    }
+
+    // Last move highlights
+    if (this.lastMove) {
+      this.squares[this.lastMove.from]?.classList.add('last-w');
+      this.squares[this.lastMove.to]?.classList.add('last-b');
+    }
+
+    // Selected square
+    if (this.selected) {
+      this.squares[this.selected]?.classList.add('sel');
+      // Legal move dots
+      for (const dest of (this.dests[this.selected] || [])) {
+        const target = this.squares[dest];
+        if (!target) continue;
+        const hasEnemy = !!this.chess.get(dest);
+        target.classList.add(hasEnemy ? 'dest-cap' : 'dest');
+      }
+    }
+  }
+
+  _click(sq) {
+    if (this.locked) return;
+
+    // If already selected and this is a legal dest → move
+    if (this.selected && this.dests[this.selected]?.includes(sq)) {
+      this._doMove(this.selected, sq);
+      return;
+    }
+
+    // If clicking own piece → select
+    const piece = this.chess.get(sq);
+    if (piece && piece.color === this.chess.turn()) {
+      this.selected = sq;
+      // compute legal dests
+      const legalMoves = this.chess.moves({ verbose: true });
+      this.dests = {};
+      for (const m of legalMoves) {
+        if (!this.dests[m.from]) this.dests[m.from] = [];
+        this.dests[m.from].push(m.to);
+      }
+      this._render();
+      return;
+    }
+
+    // Deselect
+    this.selected = null;
+    this.dests = {};
+    this._render();
+  }
+
+  _doMove(from, to) {
+    const move = this.chess.move({ from, to, promotion: 'q' });
+    if (!move) return;
+    this.selected = null;
+    this.dests    = {};
+    this.lastMove = { from: move.from, to: move.to };
+    this._lock();
+    this._render();
+    this.onMove(move);
+  }
+
+  /* Play a move (CPU or chip) without triggering onMove callback */
+  playManual(san) {
+    const m = this.chess.move(san);
+    if (!m) return null;
+    this.selected = null;
+    this.dests    = {};
+    this.lastMove = { from: m.from, to: m.to };
+    this._render();
+    return m;
+  }
+
+  enableWhite() {
+    this.locked = false;
+    this.chess.turn(); // just access to ensure state OK
+    this._render();
+  }
+
+  _lock() { this.locked = true; }
+
+  undoPair() {
+    this.chess.undo(); // black
+    this.chess.undo(); // white
+    this.selected = null; this.dests = {};
+    this.lastMove = null;
+    this.locked = false;
+    this._render();
+  }
+
+  undoOne() {
+    this.chess.undo(); // white only (after rejected move)
+    this.selected = null; this.dests = {};
+    this.locked = false;
+    this._render();
+  }
+
+  reset() {
+    this.chess.reset();
+    this.selected = null; this.dests = {};
+    this.lastMove = null;
+    this.locked = false;
+    this._render();
+  }
+
+  showArrow(from, to) {
+    const sqSize = 100; // viewBox is 800x800 → each sq = 100
+    const col = sq => FILES.indexOf(sq[0]);
+    const row = sq => 8 - parseInt(sq[1]); // rank 8 → row 0
+
+    const cx = sq => col(sq) * sqSize + sqSize / 2;
+    const cy = sq => row(sq) * sqSize + sqSize / 2;
+
+    const x1 = cx(from), y1 = cy(from);
+    const x2 = cx(to),   y2 = cy(to);
+
+    // Shorten line by ~15 units toward dest for arrowhead room
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/len, uy = dy/len;
+    const ex = x2 - ux*18, ey = y2 - uy*18;
+
+    this.svg.innerHTML = `
+      <defs>
+        <marker id="ah" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <polygon points="0 0,6 3,0 6" fill="rgba(16,185,129,.9)"/>
+        </marker>
+      </defs>
+      <line x1="${x1}" y1="${y1}" x2="${ex}" y2="${ey}"
+        stroke="rgba(16,185,129,.85)" stroke-width="14"
+        marker-end="url(#ah)" stroke-linecap="round"/>`;
+
+    setTimeout(() => { this.svg.innerHTML = ''; }, 2200);
+  }
+
+  doFlash(cls) {
+    this.flash.className = cls;
+    setTimeout(() => { this.flash.className = ''; }, 700);
+  }
+
+  getFen()       { return this.chess.fen(); }
+  legalMoves()   { return this.chess.moves({ verbose: true }); }
+}
+
+/* ════════════════════════════════════════════
+   OPENING DATA
+   ════════════════════════════════════════════ */
+const VARIATIONS = [
+{
+  id:'london_classical', name:'Klassisch vs …d5', icon:'♛', importance:10,
+  idea:'d4 + Lf4 + e3 bilden das Fundament des London Systems. Solide Entwicklung, kein Risiko – und trotzdem aktiv.',
+  intro:['d4','d5','Bf4','Nf6','e3','e6','Nf3'],
+  tree:{
+    correct:['d4'], playable:[], hint:'Stoße den d-Bauer vor.',
+    explanation:'d4 – das London beginnt.',
+    responses:{'d5':.60,'Nf6':.25,'e5':.15},
+    after:{
+      'd5':{
+        correct:['Bf4'], playable:['Nf3','c4'],
+        explanation:'Lf4! Der Londoner Bischof – entwickelt, bevor e3 ihn einschließt.',
+        hint:'Entwickle den Läufer nach f4, bevor e3 gespielt wird.',
+        responses:{'Nf6':.65,'c5':.20,'e6':.15},
+        after:{
+          'Nf6':{
+            correct:['e3'], playable:['Nf3'],
+            explanation:'e3 sichert d4 und bereitet die Königsseite vor. Solide Struktur!',
+            hint:'e3 – sichert d4 und bereitet Rochade vor.',
+            responses:{'e6':.55,'c5':.30,'Bd6':.15},
+            after:{
+              'e6':{
+                correct:['Nf3'], playable:['Nd2','Bd3'],
+                explanation:'Sf3 kontrolliert e5 und bereitet Rochade vor.',
+                hint:'Springer nach f3.',
+                responses:{'Bd6':.70,'c5':.30},
+                after:{
+                  'Bd6':{
+                    correct:['Bg3'], playable:['Bxd6'],
+                    explanation:'Lg3! Falls Schwarz tauscht, öffnet sich die h-Linie für unseren Turm.',
+                    hint:'Lg3 – nicht tauschen lassen!',
+                    responses:{'O-O':.80,'Bxg3':.20},
+                    after:{
+                      'O-O':{
+                        correct:['Bd3'], playable:['Nbd2','c3'],
+                        explanation:'Ld3 – der Bischof zielt auf h7! Aktive Stellung.',
+                        hint:'Ld3 – zielt auf h7.',
+                        responses:{'c5':.70,'Re8':.30},
+                        after:{
+                          'c5':{
+                            correct:['c3'], playable:['Nbd2'],
+                            explanation:'c3 – Zentrum halten. Solide und gut.',
+                            hint:'c3 sichert d4.',
+                            responses:{'Nc6':.90,'b6':.10},
+                            after:{
+                              'Nc6':{
+                                correct:['Nbd2'],
+                                explanation:'Sbd2 – springt über f1 nach e4 oder g5.',
+                                hint:'Sd2 – flexibel.',
+                                responses:{},after:{}
+                              }
+                            }
+                          },
+                          'Re8':{
+                            correct:['O-O'],
+                            explanation:'Rochade! König sicher, Turm aktiv.',
+                            hint:'Rochade!',
+                            responses:{},after:{}
+                          }
+                        }
+                      },
+                      'Bxg3':{
+                        correct:['hxg3'],
+                        explanation:'hxg3 – die h-Linie öffnet sich für den Turm!',
+                        hint:'hxg3 öffnet die h-Linie.',
+                        responses:{'c5':.80,'Nc6':.20},
+                        after:{
+                          'c5':{
+                            correct:['c3'],
+                            explanation:'c3 – Zentrum sichern.',
+                            hint:'c3.',
+                            responses:{},after:{}
+                          }
+                        }
+                      }
+                    }
+                  },
+                  'c5':{
+                    correct:['c3'], playable:['dxc5','Nbd2'],
+                    explanation:'c3 – wir halten d4 und weichen dem Druck aus.',
+                    hint:'c3 hält das Zentrum.',
+                    responses:{'Nc6':.60,'Qb6':.40},
+                    after:{
+                      'Qb6':{
+                        correct:['Qb3'], playable:['Qc1'],
+                        explanation:'Db3! Damentausch beseitigt den Druck auf b2 und d4.',
+                        hint:'Db3 – tausch die Damen!',
+                        responses:{'Qxb3':.80,'Nc6':.20},
+                        after:{
+                          'Qxb3':{
+                            correct:['axb3'],
+                            explanation:'axb3 – die a-Linie öffnet sich für den Turm.',
+                            hint:'axb3.',
+                            responses:{},after:{}
+                          }
+                        }
+                      },
+                      'Nc6':{
+                        correct:['Nbd2'],
+                        explanation:'Sbd2 – flexible Entwicklung.',
+                        hint:'Sd2.',
+                        responses:{},after:{}
+                      }
+                    }
+                  }
+                }
+              },
+              'Bd6':{
+                correct:['Bg3'], playable:['Bxd6'],
+                explanation:'Lg3 – verhindert den Läufertausch, behält Druck.',
+                hint:'Lg3 – nicht tauschen lassen.',
+                responses:{'Nf6':1.0},
+                after:{
+                  'Nf6':{
+                    correct:['e3'],
+                    explanation:'e3 – Londoner Struktur vervollständigt.',
+                    hint:'e3.',
+                    responses:{},after:{}
+                  }
+                }
+              },
+              'c5':{
+                correct:['e3'], playable:['c3'],
+                explanation:'e3 – Struktur zuerst, auch gegen c5.',
+                hint:'e3.',
+                responses:{'Nf6':.60,'Nc6':.40},
+                after:{
+                  'Nf6':{
+                    correct:['Nf3'],
+                    explanation:'Sf3 – Standard-London.',
+                    hint:'Sf3.',
+                    responses:{},after:{}
+                  }
+                }
+              }
+            }
+          },
+          'c5':{
+            correct:['e3'], playable:['c3'],
+            explanation:'e3 – Londoner Struktur, auch gegen c5.',
+            hint:'e3.',
+            responses:{'Nf6':.60,'Nc6':.40},
+            after:{
+              'Nf6':{
+                correct:['Nf3'],
+                explanation:'Sf3 – Standard.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              }
+            }
+          },
+          'e6':{
+            correct:['e3'],
+            explanation:'e3 – klassisches London gegen e6.',
+            hint:'e3.',
+            responses:{'Nf6':.80,'c5':.20},
+            after:{
+              'Nf6':{
+                correct:['Nf3'],
+                explanation:'Sf3 – weiter normal.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              }
+            }
+          }
+        }
+      },
+      'Nf6':{
+        correct:['Bf4'], playable:['Nf3','d5'],
+        explanation:'Lf4 – das London funktioniert gegen alles!',
+        hint:'Lf4 – immer der Londoner Bischof.',
+        responses:{'g6':.50,'d5':.30,'e6':.20},
+        after:{
+          'g6':{
+            correct:['e3'],
+            explanation:'e3 – die Londoner Mauer gegen Königsindisch.',
+            hint:'e3 – Londoner Mauer.',
+            responses:{'Bg7':1.0},
+            after:{
+              'Bg7':{
+                correct:['Nf3'],
+                explanation:'Sf3 – ruhige Entwicklung.',
+                hint:'Sf3.',
+                responses:{'O-O':.70,'d6':.30},
+                after:{
+                  'O-O':{
+                    correct:['Be2'], playable:['Bd3'],
+                    explanation:'Le2 statt Ld3 – verhindert ...Sh5 Attacke auf Lf4!',
+                    hint:'Le2 – nicht Ld3 gegen Fianchetto.',
+                    responses:{'d6':.80,'c5':.20},
+                    after:{
+                      'd6':{
+                        correct:['h3'], playable:['O-O'],
+                        explanation:'h3 – Prophylaxe! Gibt Lf4 das Feld h2 gegen ...Sh5.',
+                        hint:'h3 schützt den Bischof.',
+                        responses:{'Nbd7':.70,'c5':.30},
+                        after:{
+                          'Nbd7':{
+                            correct:['O-O'],
+                            explanation:'Rochade! Vollständige, solide Stellung.',
+                            hint:'Rochade!',
+                            responses:{},after:{}
+                          }
+                        }
+                      }
+                    }
+                  },
+                  'd6':{
+                    correct:['Be2'],
+                    explanation:'Le2 – flexibel gegen Königsinder.',
+                    hint:'Le2.',
+                    responses:{},after:{}
+                  }
+                }
+              }
+            }
+          },
+          'd5':{
+            correct:['e3'],
+            explanation:'e3 – normales London.',
+            hint:'e3.',
+            responses:{'e6':.60,'Bg4':.40},
+            after:{
+              'Bg4':{
+                correct:['Be2'], playable:['Nd2','h3'],
+                explanation:'Le2 – verhindert ...Lxf3 und behält das Läuferpaar.',
+                hint:'Le2 verhindert ...Lxf3.',
+                responses:{},after:{}
+              },
+              'e6':{
+                correct:['Nf3'],
+                explanation:'Sf3 – weiter normal.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              }
+            }
+          }
+        }
+      },
+      'e5':{
+        correct:['dxe5'], playable:['d5','e3'],
+        explanation:'dxe5 – wir gewinnen Zentrumsfeld und stören Schwarz.',
+        hint:'dxe5 – schlag im Zentrum.',
+        responses:{'Nc6':.60,'Qxd1+':0.40},
+        after:{
+          'Qxd1+':{
+            correct:['Kxd1'],
+            explanation:'Kxd1 – im Londoner Endspiel ist der König aktiv!',
+            hint:'Kxd1 – König aktiv im Endspiel.',
+            responses:{'Nc6':.80,'Nd7':.20},
+            after:{
+              'Nc6':{
+                correct:['Nf3'],
+                explanation:'Sf3 greift e5 an. Wir stehen besser.',
+                hint:'Sf3 greift e5 an.',
+                responses:{},after:{}
+              }
+            }
+          },
+          'Nc6':{
+            correct:['Nf3'], playable:['Bf4','e3'],
+            explanation:'Sf3 – entwickeln und e5 angreifen.',
+            hint:'Sf3.',
+            responses:{},after:{}
+          }
+        }
+      }
+    }
+  }
+},
+{
+  id:'london_indian', name:"King's Indian vs …g6", icon:'🏔', importance:7,
+  idea:'Gegen Königsindisch (g6, Lg7) bleibt das London stark. Le2 statt Ld3 ist entscheidend – verhindert ...Sh5.',
+  intro:['d4','Nf6','Bf4','g6','e3','Bg7','Nf3','O-O','Be2'],
+  tree:{
+    correct:['d4'], playable:[], hint:'d4.',
+    explanation:'d4 – London Eröffnung.',
+    responses:{'Nf6':.80,'g6':.20},
+    after:{
+      'Nf6':{
+        correct:['Bf4'], playable:['Nf3'],
+        explanation:'Lf4 – London gegen alles!',
+        hint:'Lf4.',
+        responses:{'g6':.70,'e6':.30},
+        after:{
+          'g6':{
+            correct:['e3'],
+            explanation:'e3 – Londoner Mauer.',
+            hint:'e3.',
+            responses:{'Bg7':1.0},
+            after:{
+              'Bg7':{
+                correct:['Nf3'],
+                explanation:'Sf3 – ruhige Entwicklung.',
+                hint:'Sf3.',
+                responses:{'O-O':.70,'d6':.30},
+                after:{
+                  'O-O':{
+                    correct:['Be2'], playable:['Bd3'],
+                    explanation:'Le2! Flexibler als Ld3 – kein ...Sh5!',
+                    hint:'Le2 – nicht Ld3 gegen Fianchetto!',
+                    responses:{'d6':.75,'c5':.25},
+                    after:{
+                      'd6':{
+                        correct:['h3'], playable:['O-O'],
+                        explanation:'h3 – verhindert ...Sh5! Wichtige Prophylaxe.',
+                        hint:'h3 schützt Lf4.',
+                        responses:{'Nbd7':.70,'c5':.30},
+                        after:{
+                          'Nbd7':{
+                            correct:['O-O'],
+                            explanation:'Rochade – alles entwickelt, starke Stellung.',
+                            hint:'Rochade!',
+                            responses:{},after:{}
+                          }
+                        }
+                      },
+                      'c5':{
+                        correct:['c3'],
+                        explanation:'c3 – Zentrum halten.',
+                        hint:'c3.',
+                        responses:{},after:{}
+                      }
+                    }
+                  },
+                  'd6':{
+                    correct:['Be2'],
+                    explanation:'Le2 – flexibel.',
+                    hint:'Le2.',
+                    responses:{'O-O':1.0},
+                    after:{
+                      'O-O':{
+                        correct:['h3'],
+                        explanation:'h3 – Prophylaxe.',
+                        hint:'h3.',
+                        responses:{},after:{}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          'e6':{
+            correct:['e3'],
+            explanation:'e3 – normales London.',
+            hint:'e3.',
+            responses:{'d5':.80,'b6':.20},
+            after:{
+              'd5':{
+                correct:['Nf3'],
+                explanation:'Sf3 – klassisches London.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+{
+  id:'london_bishop', name:'Bischofsangriff vs …Lf5', icon:'⚔', importance:5,
+  idea:'Wenn Schwarz unseren Londoner Bischof mit ...Lf5 oder ...Lg4 herausfordert – ruhig bleiben und solid entwickeln.',
+  intro:['d4','d5','Bf4','Bf5','e3','e6','Nf3'],
+  tree:{
+    correct:['d4'], playable:[], hint:'d4.',
+    explanation:'d4.',
+    responses:{'d5':.70,'Nf6':.30},
+    after:{
+      'd5':{
+        correct:['Bf4'], playable:['Nf3'],
+        explanation:'Lf4 – London!',
+        hint:'Lf4.',
+        responses:{'Bf5':.50,'Nf6':.50},
+        after:{
+          'Bf5':{
+            correct:['e3'], playable:['Bd3','Nc3'],
+            explanation:'e3 – ruhig. Schwarz Lf5 stört uns nicht.',
+            hint:'e3 – lass dich nicht stören.',
+            responses:{'e6':.60,'Nd7':.40},
+            after:{
+              'e6':{
+                correct:['Nf3'],
+                explanation:'Sf3 – normale Entwicklung.',
+                hint:'Sf3.',
+                responses:{'Nd7':.70,'Nf6':.30},
+                after:{
+                  'Nd7':{
+                    correct:['Bd3'], playable:['Be2'],
+                    explanation:'Ld3 – provoziert den günstigen Läufertausch!',
+                    hint:'Ld3 – Bischöfe tauschen ist gut für Weiß.',
+                    responses:{'Bxd3':.80,'Bg6':.20},
+                    after:{
+                      'Bxd3':{
+                        correct:['Qxd3'],
+                        explanation:'Dxd3 – aktive Dame, Druck auf d5.',
+                        hint:'Dxd3.',
+                        responses:{},after:{}
+                      }
+                    }
+                  }
+                }
+              },
+              'Nd7':{
+                correct:['Nf3'], playable:['Bd3'],
+                explanation:'Sf3 – entwickeln und e5 kontrollieren.',
+                hint:'Sf3.',
+                responses:{'e6':1.0},
+                after:{
+                  'e6':{
+                    correct:['Bd3'],
+                    explanation:'Ld3 – Bischöfe tauschen.',
+                    hint:'Ld3.',
+                    responses:{},after:{}
+                  }
+                }
+              }
+            }
+          },
+          'Nf6':{
+            correct:['e3'], playable:['Nf3'],
+            explanation:'e3 – normales London.',
+            hint:'e3.',
+            responses:{'e6':.70,'Bg4':.30},
+            after:{
+              'Bg4':{
+                correct:['Be2'], playable:['Nd2','h3'],
+                explanation:'Le2 verhindert ...Lxf3 – Läuferpaar behalten!',
+                hint:'Le2.',
+                responses:{},after:{}
+              },
+              'e6':{
+                correct:['Nf3'],
+                explanation:'Sf3 – weiter.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+];
+
+/* ════════════════════════════════════════════
+   PROGRESS
+   ════════════════════════════════════════════ */
+const SKEY = 'chess_prep_v4';
+const TIERS = [
+  {id:'none',    label:'🌑 Lehrling', pts:0   },
+  {id:'bronze',  label:'⭐ Bronze',   pts:30  },
+  {id:'silver',  label:'🥈 Silber',  pts:130 },
+  {id:'gold',    label:'🥇 Gold',    pts:320 },
+  {id:'diamond', label:'💎 Diamant', pts:650 },
+];
+function tierFor(sc){ let t=TIERS[0]; for(const x of TIERS) if(sc>=x.pts)t=x; return t; }
+function nextPts(sc){ for(const x of TIERS) if(sc<x.pts) return x.pts; return TIERS.at(-1).pts; }
+function prevPts(sc){ let p=0; for(const x of TIERS){ if(sc<x.pts) return p; p=x.pts; } return p; }
+
+class Progress {
+  constructor(){ this.d=this._load(); }
+  _load(){ try{ return JSON.parse(localStorage.getItem(SKEY))||{sc:{},wk:{}}; }catch{ return{sc:{},wk:{}}; } }
+  _save(){ localStorage.setItem(SKEY,JSON.stringify(this.d)); }
+  score(id){ return this.d.sc[id]||0; }
+  tier(id){ return tierFor(this.score(id)); }
+  add(id,pts){
+    const before=this.tier(id).id;
+    this.d.sc[id]=(this.score(id))+pts;
+    const after=this.tier(id).id;
+    this._save();
+    return before!==after?this.tier(id):null;
+  }
+  weak(id,fen){
+    if(!this.d.wk[id])this.d.wk[id]=[];
+    if(!this.d.wk[id].includes(fen))this.d.wk[id].push(fen);
+    this._save();
+  }
+}
+
+/* ════════════════════════════════════════════
+   ENGINE
+   ════════════════════════════════════════════ */
+function pick(resp){
+  const e=Object.entries(resp);
+  if(!e.length)return null;
+  const tot=e.reduce((s,[,w])=>s+w,0);
+  let r=Math.random()*tot;
+  for(const[m,w]of e){ r-=w; if(r<=0)return m; }
+  return e[0][0];
+}
+
+class Engine {
+  constructor(){ this.variation=null; this.node=null; this.history=[]; }
+  start(v){ this.variation=v; this.node=v.tree; this.history=[]; }
+  handle(san){
+    const n=this.node;
+    if(!n)return{status:'end'};
+    const isC=(n.correct||[]).includes(san);
+    const isP=(n.playable||[]).includes(san);
+    if(isC||isP){
+      this.history.push({node:n,san});
+      return{ status:isC?'correct':'playable', explanation:n.explanation||'Gut!',
+              responses:n.responses||{}, after:n.after||{} };
+    }
+    return{ status:'error', correct:n.correct||[], playable:n.playable||[],
+            explanation:(n.correct?.length)?`Nicht ganz. Versuch: ${n.correct[0]}`:'Kein optimaler Zug.' };
+  }
+  advance(blackSan,afterMap){
+    const next=afterMap[blackSan]||null;
+    if(this.history.length)this.history.at(-1).blackSan=blackSan;
+    this.node=next;
+    return!!next;
+  }
+  back(){
+    if(!this.history.length)return false;
+    this.node=this.history.pop().node;
+    return true;
+  }
+  canBack(){ return this.history.length>0; }
+  get currentNode(){ return this.node; }
+}
+
+/* ════════════════════════════════════════════
+   APP
+   ════════════════════════════════════════════ */
+class App {
+  constructor(){
+    this.progress = new Progress();
+    this.engine   = new Engine();
+    this.active   = null;
+    this.busy     = false;
+
+    this.$ = id => document.getElementById(id);
+
+    this.board = new BoardUI(
+      this.$('board-grid'),
+      this.$('arrow-svg'),
+      this.$('flash'),
+      move => this._onMove(move)
+    );
+
+    this.$('m-btn').onclick    = () => this._startIntro();
+    this.$('btn-back').onclick = () => this._onBack();
+    this.$('btn-hint').onclick = () => this._onHint();
+
+    this._renderTabs();
+    this._selectVariation(VARIATIONS[0]);
+  }
+
+  _selectVariation(v){
+    this.active=v;
+    this.engine.start(v);
+    this.board.reset();
+    this._clearOptions();
+    this.$('btn-back').disabled=true;
+    this._renderTabs();
+    this._updateStats();
+    this._showModal(v);
+  }
+
+  _renderTabs(){
+    const el=this.$('var-tabs');
+    el.innerHTML='';
+    VARIATIONS.forEach(v=>{
+      const b=document.createElement('button');
+      b.className='vtab'+(this.active?.id===v.id?' active':'');
+      const sc=this.progress.score(v.id);
+      b.textContent=v.icon+' '+v.name+(sc>0?' '+this.progress.tier(v.id).label:'');
+      b.onclick=()=>this._selectVariation(v);
+      el.appendChild(b);
+    });
+  }
+
+  _showModal(v){
+    this.$('m-icon').textContent=v.icon;
+    this.$('m-title').textContent=v.name;
+    this.$('m-idea').textContent=v.idea;
+    const chips=this.$('m-chips');
+    chips.innerHTML='';
+    let n=1;
+    for(let i=0;i<v.intro.length;i+=2){
+      const w=v.intro[i],b=v.intro[i+1];
+      const c=document.createElement('span');
+      c.className='m-chip';
+      c.textContent=n+++'. '+w+(b?' '+b:'');
+      chips.appendChild(c);
+    }
+    this.$('modal').classList.remove('hidden');
+  }
+
+  async _startIntro(){
+    this.$('modal').classList.add('hidden');
+    this.busy=true;
+    this._say('Schau dir die Einführungszüge an…','');
+    this.board.reset();
+    this.board._lock();
+    for(const san of this.active.intro){
+      await this._wait(870);
+      this.board.playManual(san);
+    }
+    await this._wait(700);
+    this.board.reset();
+    this.engine.start(this.active);
+    this.$('btn-back').disabled=true;
+    this.busy=false;
+    this._say('Jetzt bist du dran! Was spielt Weiß?','');
+  }
+
+  async _onMove(move){
+    if(this.busy)return;
+    this.busy=true;
+    const result=this.engine.handle(move.san);
+
+    if(result.status==='correct'){
+      this._clearOptions();
+      this.board.doFlash('fok');
+      this._say('✅ '+result.explanation,'ok');
+      const newTier=this.progress.add(this.active.id,10);
+      if(newTier)this._celebrateTier(newTier);
+      this._updateStats();
+      const blackSan=pick(result.responses);
+      if(blackSan){
+        await this._wait(600);
+        this.board.playManual(blackSan);
+        const hasNext=this.engine.advance(blackSan,result.after);
+        this.$('btn-back').disabled=false;
+        if(!hasNext){
+          await this._wait(600);
+          this._say('🎉 Linie geschafft! Gleich nochmal…','ok');
+          await this._wait(1800);
+          this._resetRound();
+        } else {
+          this._say('⚫ Schwarz: '+blackSan+'. Dein Zug!','');
+          this.board.enableWhite();
+        }
+      } else {
+        this._say('🎉 Ende dieser Linie!','ok');
+        await this._wait(1800);
+        this._resetRound();
+      }
+
+    } else if(result.status==='playable'){
+      this._clearOptions();
+      this.board.doFlash('fgood');
+      this._say('🔵 Spielbar! '+result.explanation,'good');
+      this.progress.add(this.active.id,4);
+      this._updateStats();
+      const blackSan=pick(result.responses);
+      if(blackSan){
+        await this._wait(600);
+        this.board.playManual(blackSan);
+        this.engine.advance(blackSan,result.after);
+        this.$('btn-back').disabled=false;
+        this._say('⚫ Schwarz: '+blackSan+'. Weiter!','good');
+        this.board.enableWhite();
+      } else {
+        await this._wait(1800);
+        this._resetRound();
+      }
+
+    } else {
+      this.board.doFlash('fbad');
+      this._say('❌ '+result.explanation,'bad');
+      this.progress.weak(this.active.id,this.board.getFen());
+      await this._wait(900);
+      this.board.undoOne();
+      this._showOptions(result.correct,result.playable);
+      this.busy=false;
+      return;
+    }
+    this.busy=false;
+  }
+
+  _onBack(){
+    if(!this.engine.canBack())return;
+    this.engine.back();
+    this.board.undoPair();
+    this._clearOptions();
+    this._say('Einen Schritt zurück – nochmal versuchen!','');
+    this.$('btn-back').disabled=!this.engine.canBack();
+    this.busy=false;
+  }
+
+  _onHint(){
+    const node=this.engine.currentNode;
+    if(!node||!node.correct?.length)return;
+    const target=node.correct[0];
+    const legal=this.board.legalMoves();
+    const m=legal.find(x=>x.san===target);
+    this._say('💡 '+(node.hint||'Versuch: '+target),'');
+    if(m)this.board.showArrow(m.from,m.to);
+  }
+
+  _showOptions(correct,playable){
+    const el=this.$('options');
+    el.innerHTML='<span class="opt-label">Mögliche Züge:</span>';
+    (correct||[]).forEach(san=>{
+      const b=document.createElement('button');
+      b.className='chip c'; b.textContent='✓ '+san;
+      b.onclick=()=>this._playChip(san);
+      el.appendChild(b);
+    });
+    (playable||[]).forEach(san=>{
+      const b=document.createElement('button');
+      b.className='chip p'; b.textContent='≈ '+san;
+      b.onclick=()=>this._playChip(san);
+      el.appendChild(b);
+    });
+    el.classList.add('show');
+  }
+
+  async _playChip(san){
+    if(this.busy)return;
+    this._clearOptions();
+    const move=this.board.playManual(san);
+    if(!move)return;
+    this.board._lock();
+    await this._onMove(move);
+  }
+
+  _clearOptions(){
+    const el=this.$('options');
+    el.innerHTML='';
+    el.classList.remove('show');
+  }
+
+  _resetRound(){
+    this.engine.start(this.active);
+    this.board.reset();
+    this._clearOptions();
+    this.$('btn-back').disabled=true;
+    this._say('Nochmal! Erster Zug für Weiß?','');
+    this.busy=false;
+  }
+
+  _updateStats(){
+    if(!this.active)return;
+    const id=this.active.id, sc=this.progress.score(id), t=this.progress.tier(id);
+    this.$('stat-badge').textContent=t.label;
+    this.$('stat-score').textContent=sc+' Pkt.';
+    const prev=prevPts(sc), next=nextPts(sc);
+    const pct=next>prev?((sc-prev)/(next-prev))*100:100;
+    this.$('prog-fill').style.width=pct+'%';
+  }
+
+  _celebrateTier(tier){
+    this._say('🎉 Neues Abzeichen: '+tier.label+'!','ok');
+    this.$('stat-badge').classList.add('pop');
+    setTimeout(()=>this.$('stat-badge').classList.remove('pop'),600);
+  }
+
+  _say(text,mood){
+    const ct=this.$('coach-text');
+    ct.style.opacity='0';
+    setTimeout(()=>{ ct.textContent=text; ct.style.opacity='1'; },120);
+    const b=this.$('bubble');
+    b.className=mood||'';
+    b.id='bubble'; // keep id
+  }
+
+  _wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+}
+
+// Start!
+document.addEventListener('DOMContentLoaded', () => new App());
+</script>
+</body>
+</html>
