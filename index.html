@@ -676,30 +676,35 @@ const VARIATIONS = [
     responses:{'d5':.60,'Nf6':.25,'e5':.15},
     after:{
       'd5':{
+        blackExplanation:'Schwarz besetzt das Zentrum und fordert d4 heraus.',
         correct:['Bf4'], playable:['Nf3','c4'],
         explanation:'Lf4! Der "Londoner Läufer" – wir entwickeln ihn aktiv außerhalb der Bauernkette, bevor wir e3 spielen.',
         hint:'Entwickle den Läufer nach f4, bevor e3 gespielt wird.',
         responses:{'Nf6':.65,'c5':.20,'e6':.15},
         after:{
           'Nf6':{
+            blackExplanation:'Entwickelt den Springer und kontrolliert e4.',
             correct:['e3'], playable:['Nf3'],
             explanation:'e3 festigt d4 und bildet die Basis unserer soliden Bauernpyramide. Jetzt steht der Lf4 sicher draußen.',
             hint:'e3 – sichert d4 und bereitet Rochade vor.',
             responses:{'e6':.55,'c5':.30,'Bd6':.15},
             after:{
               'e6':{
+                blackExplanation:'Sichert d5 ab und bereitet die Läuferentwicklung vor.',
                 correct:['Nf3'], playable:['Nd2','Bd3'],
                 explanation:'Sf3 kontrolliert das wichtige Feld e5 und bereitet die kurze Rochade vor.',
                 hint:'Springer nach f3.',
                 responses:{'Bd6':.70,'c5':.30},
                 after:{
                   'Bd6':{
+                    blackExplanation:'Fordert den starken Lf4 direkt zum Tausch heraus.',
                     correct:['Bg3'], playable:['Bxd6'],
                     explanation:'Lg3! Wir weichen dem Tausch aus. Falls Schwarz auf g3 schlägt, öffnet sich die h-Linie für unseren Turm (hxg3).',
                     hint:'Lg3 – nicht tauschen lassen!',
                     responses:{'O-O':.80,'Bxg3':.20},
                     after:{
                       'O-O':{
+                        blackExplanation:'Bringt den König in Sicherheit.',
                         correct:['Bd3'], playable:['Nbd2','c3'],
                         explanation:'Ld3 – der Bischof zielt auf h7! Aktive Stellung.',
                         hint:'Ld3 – zielt auf h7.',
@@ -946,20 +951,23 @@ const VARIATIONS = [
     responses:{'Nf6':.80,'g6':.20},
     after:{
       'Nf6':{
+        blackExplanation:'Entwickelt den Springer und bereitet d5 oder g6 vor.',
         correct:['Bf4'], playable:['Nf3'],
         explanation:'Lf4 – Das London System ist extrem universell und funktioniert auch gegen indische Aufbauten (Nf6/g6).',
         hint:'Lf4.',
         responses:{'g6':.70,'e6':.30},
         after:{
           'g6':{
+            blackExplanation:'Kündigt das Fianchetto an – der Läufer soll nach g7.',
             correct:['e3'],
             explanation:'e3 baut die "Mauer" auf. Gegen g6 ist es wichtig, das Zentrum d4 stabil zu halten.',
             hint:'e3.',
             responses:{'Bg7':1.0},
             after:{
               'Bg7':{
+                blackExplanation:'Der Läufer zielt auf das Zentrum (Fianchetto).',
                 correct:['Nf3'],
-                explanation:'Sf3 kontrolliert e5. Wir ignorieren den schwarzen Aufbau und entwickeln uns solide weiter.',
+                explanation:'Sf3 – Wir ignorieren den schwarzen Aufbau und entwickeln uns stabil.',
                 hint:'Sf3.',
                 responses:{'O-O':.70,'d6':.30},
                 after:{
@@ -970,6 +978,7 @@ const VARIATIONS = [
                     responses:{'d6':.75,'c5':.25},
                     after:{
                       'd6':{
+                        blackExplanation:'Sichert e5 ab und bereitet den Raumgewinn vor.',
                         correct:['h3'], playable:['O-O'],
                         explanation:'h3! Wichtige Prophylaxe. Wir schaffen ein Rückzugsfeld auf h2 für unseren Lf4, falls Schwarz ihn mit ...Sh5 angreift.',
                         hint:'h3 schützt Lf4.',
@@ -1035,27 +1044,31 @@ const VARIATIONS = [
   tree:{
     correct:['d4'], playable:[], hint:'d4.',
     explanation:'d4.',
-    responses:{'d5':.70,'Nf6':.30},
+    responses:{'d5':.70,'Nf6':.20},
     after:{
       'd5':{
+        blackExplanation:'Schwarz besetzt das Zentrum.',
         correct:['Bf4'], playable:['Nf3'],
         explanation:'Lf4 – London!',
         hint:'Lf4.',
         responses:{'Bf5':.50,'Nf6':.50},
         after:{
           'Bf5':{
+            blackExplanation:'Fordert unseren Läufer mit symmetrischer Entwicklung heraus.',
             correct:['e3'], playable:['Bd3','Nc3'],
             explanation:'e3 – ruhig. Schwarz Lf5 stört uns nicht.',
             hint:'e3 – lass dich nicht stören.',
             responses:{'e6':.60,'Nd7':.40},
             after:{
               'e6':{
+                blackExplanation:'Sichert d5 und bereitet ...Le7/Sf6 vor.',
                 correct:['Nf3'],
                 explanation:'Sf3 – normale Entwicklung.',
                 hint:'Sf3.',
                 responses:{'Nd7':.70,'Nf6':.30},
                 after:{
                   'Nd7':{
+                    blackExplanation:'Springerentwicklung, kämpft um das Feld e5.',
                     correct:['Bd3'], playable:['Be2'],
                     explanation:'Ld3 – provoziert den günstigen Läufertausch!',
                     hint:'Ld3 – Bischöfe tauschen ist gut für Weiß.',
@@ -1303,7 +1316,8 @@ class App {
           await this._wait(1800);
           this._resetRound();
         } else {
-          this._say('⚫ Schwarz: '+blackSan+'. Dein Zug!','');
+          const bExp = result.after[blackSan]?.blackExplanation;
+          this._say('⚫ Schwarz: '+blackSan + (bExp ? ' – ' + bExp : '') + '. Dein Zug!','');
           this.board.enableWhite();
         }
       } else {
@@ -1322,9 +1336,10 @@ class App {
       if(blackSan){
         await this._wait(600);
         this.board.playManual(blackSan);
-        this.engine.advance(blackSan,result.after);
+        const hasNext = this.engine.advance(blackSan,result.after);
         this.$('btn-back').disabled=false;
-        this._say('⚫ Schwarz: '+blackSan+'. Weiter!','good');
+        const bExp = result.after[blackSan]?.blackExplanation;
+        this._say('⚫ Schwarz: '+blackSan + (bExp ? ' – ' + bExp : '') + '. Weiter!','good');
         this.board.enableWhite();
       } else {
         await this._wait(1800);
