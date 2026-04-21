@@ -237,17 +237,10 @@
     .sq.light .lbl-f, .sq.light .lbl-r { color: var(--sq-dark); }
     .sq.dark  .lbl-f, .sq.dark  .lbl-r { color: var(--sq-light); }
 
-    /* flash overlay */
-    #flash {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .1s;
-    }
-    #flash.fok  { background: rgba(16,185,129,.22); opacity: 1; }
-    #flash.fbad { background: rgba(244,63,94,.22);  opacity: 1; }
-    #flash.fgood{ background: rgba(59,130,246,.18); opacity: 1; }
+    /* square flash */
+    .sq.f-ok   { background: rgba(16,185,129,.7) !important; }
+    .sq.f-bad  { background: rgba(244,63,94,.7)  !important; }
+    .sq.f-good { background: rgba(59,130,246,.6)  !important; }
 
     /* hint arrow */
     #arrow-svg {
@@ -397,7 +390,6 @@
   <div id="board-wrap">
     <div id="board-grid"></div>
     <svg id="arrow-svg" viewBox="0 0 800 800" preserveAspectRatio="none"></svg>
-    <div id="flash"></div>
   </div>
 
   <div id="controls">
@@ -658,9 +650,12 @@ class BoardUI {
     setTimeout(() => { this.svg.innerHTML = ''; }, 2200);
   }
 
-  doFlash(cls) {
-    this.flash.className = cls;
-    setTimeout(() => { this.flash.className = ''; }, 700);
+  doFlash(cls, sq) {
+    const el = this.squares[sq];
+    if (!el) return;
+    const c = cls.replace('f', 'f-'); // map fok -> f-ok etc
+    el.classList.add(c);
+    setTimeout(() => { el.classList.remove(c); }, 400);
   }
 
   getFen()       { return this.chess.fen(); }
@@ -682,25 +677,25 @@ const VARIATIONS = [
     after:{
       'd5':{
         correct:['Bf4'], playable:['Nf3','c4'],
-        explanation:'Lf4! Der Londoner Bischof – entwickelt, bevor e3 ihn einschließt.',
+        explanation:'Lf4! Der "Londoner Läufer" – wir entwickeln ihn aktiv außerhalb der Bauernkette, bevor wir e3 spielen.',
         hint:'Entwickle den Läufer nach f4, bevor e3 gespielt wird.',
         responses:{'Nf6':.65,'c5':.20,'e6':.15},
         after:{
           'Nf6':{
             correct:['e3'], playable:['Nf3'],
-            explanation:'e3 sichert d4 und bereitet die Königsseite vor. Solide Struktur!',
+            explanation:'e3 festigt d4 und bildet die Basis unserer soliden Bauernpyramide. Jetzt steht der Lf4 sicher draußen.',
             hint:'e3 – sichert d4 und bereitet Rochade vor.',
             responses:{'e6':.55,'c5':.30,'Bd6':.15},
             after:{
               'e6':{
                 correct:['Nf3'], playable:['Nd2','Bd3'],
-                explanation:'Sf3 kontrolliert e5 und bereitet Rochade vor.',
+                explanation:'Sf3 kontrolliert das wichtige Feld e5 und bereitet die kurze Rochade vor.',
                 hint:'Springer nach f3.',
                 responses:{'Bd6':.70,'c5':.30},
                 after:{
                   'Bd6':{
                     correct:['Bg3'], playable:['Bxd6'],
-                    explanation:'Lg3! Falls Schwarz tauscht, öffnet sich die h-Linie für unseren Turm.',
+                    explanation:'Lg3! Wir weichen dem Tausch aus. Falls Schwarz auf g3 schlägt, öffnet sich die h-Linie für unseren Turm (hxg3).',
                     hint:'Lg3 – nicht tauschen lassen!',
                     responses:{'O-O':.80,'Bxg3':.20},
                     after:{
@@ -952,31 +947,31 @@ const VARIATIONS = [
     after:{
       'Nf6':{
         correct:['Bf4'], playable:['Nf3'],
-        explanation:'Lf4 – London gegen alles!',
+        explanation:'Lf4 – Das London System ist extrem universell und funktioniert auch gegen indische Aufbauten (Nf6/g6).',
         hint:'Lf4.',
         responses:{'g6':.70,'e6':.30},
         after:{
           'g6':{
             correct:['e3'],
-            explanation:'e3 – Londoner Mauer.',
+            explanation:'e3 baut die "Mauer" auf. Gegen g6 ist es wichtig, das Zentrum d4 stabil zu halten.',
             hint:'e3.',
             responses:{'Bg7':1.0},
             after:{
               'Bg7':{
                 correct:['Nf3'],
-                explanation:'Sf3 – ruhige Entwicklung.',
+                explanation:'Sf3 kontrolliert e5. Wir ignorieren den schwarzen Aufbau und entwickeln uns solide weiter.',
                 hint:'Sf3.',
                 responses:{'O-O':.70,'d6':.30},
                 after:{
                   'O-O':{
                     correct:['Be2'], playable:['Bd3'],
-                    explanation:'Le2! Flexibler als Ld3 – kein ...Sh5!',
+                    explanation:'Le2!! Ein Schlüsselzug gegen Königsindisch. Auf d3 wäre der Läufer ein Ziel für ...Sh5. Auf e2 steht er sicher und lässt Weiß flexibel.',
                     hint:'Le2 – nicht Ld3 gegen Fianchetto!',
                     responses:{'d6':.75,'c5':.25},
                     after:{
                       'd6':{
                         correct:['h3'], playable:['O-O'],
-                        explanation:'h3 – verhindert ...Sh5! Wichtige Prophylaxe.',
+                        explanation:'h3! Wichtige Prophylaxe. Wir schaffen ein Rückzugsfeld auf h2 für unseren Lf4, falls Schwarz ihn mit ...Sh5 angreift.',
                         hint:'h3 schützt Lf4.',
                         responses:{'Nbd7':.70,'c5':.30},
                         after:{
@@ -1291,7 +1286,7 @@ class App {
 
     if(result.status==='correct'){
       this._clearOptions();
-      this.board.doFlash('fok');
+      this.board.doFlash('fok', move.to);
       this._say('✅ '+result.explanation,'ok');
       const newTier=this.progress.add(this.active.id,10);
       if(newTier)this._celebrateTier(newTier);
@@ -1319,7 +1314,7 @@ class App {
 
     } else if(result.status==='playable'){
       this._clearOptions();
-      this.board.doFlash('fgood');
+      this.board.doFlash('fgood', move.to);
       this._say('🔵 Spielbar! '+result.explanation,'good');
       this.progress.add(this.active.id,4);
       this._updateStats();
@@ -1337,7 +1332,7 @@ class App {
       }
 
     } else {
-      this.board.doFlash('fbad');
+      this.board.doFlash('fbad', move.to);
       this._say('❌ '+result.explanation,'bad');
       this.progress.weak(this.active.id,this.board.getFen());
       await this._wait(900);
