@@ -208,14 +208,12 @@
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      font-size: min(9vw, 44px);
+      line-height: 1;
+      user-select: none;
     }
-    .pc svg {
-      width: 82%;
-      height: 82%;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    }
-    .pc.w svg { fill: #fff; }
-    .pc.b svg { fill: #000; }
+    .pc.w { color: #fff; text-shadow: 0 0 3px #000, 0 2px 5px rgba(0,0,0,.85); }
+    .pc.b { color: #111; text-shadow: 0 0 3px rgba(255,255,255,.35), 0 1px 3px rgba(0,0,0,.6); }
 
     /* file/rank labels */
     .lbl-f {
@@ -422,22 +420,8 @@
    PIECES
    ════════════════════════════════════════════ */
 const GLYPHS = {
-  w: {
-    k: `<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" stroke="#000" stroke-width="1.5" stroke-linecap="round"/><path d="M22.5 25s4.5-7.5 3-10c-1.5-2.5-6-2.5-6 0-1.5 2.5 3 10 3 10" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linecap="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-1-1-4-1-4h-30s3 3-1 4c-3 6 6 10.5 6 10.5v7" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linecap="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-    q: `<svg viewBox="0 0 45 45"><g fill="#fff" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM10.5 20a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM38.5 20a2 2 0 1 1-4 0 2 2 0 1 1 4 0z"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-5.5-13.5V25L13 14l2 12"/><path d="M9 26c0 2 1.5 2 2.5 4 2.5 5 21.5 5 24 0 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none"/></g></svg>`,
-    r: `<svg viewBox="0 0 45 45"><g fill="#fff" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" stroke-linecap="butt"/><path d="M34 14l-3 3H14l-3-3"/><path d="M31 17v12.5H14V17" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5"/><path d="M11 14h23" fill="none" stroke-linejoin="miter"/></g></svg>`,
-    b: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g fill="#fff" stroke-linecap="butt"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1 1.12 1 1H8c0 .12 1-1 1-1zM15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" fill="none" stroke-linejoin="miter"/></g></g></svg>`,
-    n: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="#fff"/><path d="M24 18c.38 2.43-4.65 0-4.65 0s1.42 5 1.5 7h4.08c0-3.1 3.5-3 3.5-3s-.5 4.5-3.08 4.5H15l-1 5 28 1c0-11-8-21-18-22" fill="#fff"/><path d="M9.5 25.5A.5.5 0 1 1 9 25a.5.5 0 0 1 .5.5z" fill="#000"/><path d="M15 15.5c4.5 2 5 2 5 2s-.5-6.5-5-9c-2.43-1.35-7 1.35-7 1.35s2.5 5.65 7 5.65z" fill="#fff"/></g></svg>`,
-    p: `<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linecap="round"/></svg>`
-  },
-  b: {
-    k: `<svg viewBox="0 0 45 45"><path d="M22.5 11.63V6M20 8h5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M22.5 25s4.5-7.5 3-10c-1.5-2.5-6-2.5-6 0-1.5 2.5 3 10 3 10" fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-1-1-4-1-4h-30s3 3-1 4c-3 6 6 10.5 6 10.5v7" fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-    q: `<svg viewBox="0 0 45 45"><g fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM10.5 20a2 2 0 1 1-4 0 2 2 0 1 1 4 0zM38.5 20a2 2 0 1 1-4 0 2 2 0 1 1 4 0z"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-5.5-13.5V25L13 14l2 12"/><path d="M9 26c0 2 1.5 2 2.5 4 2.5 5 21.5 5 24 0 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none"/></g></svg>`,
-    r: `<svg viewBox="0 0 45 45"><g fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" stroke-linecap="butt"/><path d="M34 14l-3 3H14l-3-3"/><path d="M31 17v12.5H14V17" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5"/><path d="M11 14h23" fill="none" stroke-linejoin="miter"/></g></svg>`,
-    b: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g fill="#000" stroke-linecap="butt"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1 1.12 1 1H8c0 .12 1-1 1-1zM15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2zM25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" fill="none" stroke-linejoin="miter"/></g></g></svg>`,
-    n: `<svg viewBox="0 0 45 45"><g fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="#000"/><path d="M24 18c.38 2.43-4.65 0-4.65 0s1.42 5 1.5 7h4.08c0-3.1 3.5-3 3.5-3s-.5 4.5-3.08 4.5H15l-1 5 28 1c0-11-8-21-18-22" fill="#000"/><path d="M9.5 25.5A.5.5 0 1 1 9 25a.5.5 0 0 1 .5.5z" fill="#fff"/><path d="M15 15.5c4.5 2 5 2 5 2s-.5-6.5-5-9c-2.43-1.35-7 1.35-7 1.35s2.5 5.65 7 5.65z" fill="#000"/></g></svg>`,
-    p: `<svg viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>`
-  }
+  w: { k:'♔', q:'♕', r:'♖', b:'♗', n:'♘', p:'♙' },
+  b: { k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' }
 };
 
 /* ════════════════════════════════════════════
@@ -512,7 +496,7 @@ class BoardUI {
       if (piece) {
         const span = document.createElement('span');
         span.className = 'pc ' + piece.color;
-        span.innerHTML = GLYPHS[piece.color][piece.type];
+        span.textContent = GLYPHS[piece.color][piece.type];
         div.appendChild(span);
       }
     }
@@ -672,75 +656,80 @@ const VARIATIONS = [
   intro:['d4','d5','Bf4','Nf6','e3','e6','Nf3'],
   tree:{
     correct:['d4'], playable:[], hint:'Stoße den d-Bauer vor.',
-    explanation:'d4 – das London beginnt.',
+    explanation:'d4 – das London beginnt. Wir besetzen das Zentrum und eröffnen Entwicklungswege.',
     responses:{'d5':.60,'Nf6':.25,'e5':.15},
     after:{
       'd5':{
-        blackExplanation:'Schwarz besetzt das Zentrum und fordert d4 heraus.',
+        blackExplanation:'Schwarz besetzt das Zentrum und fordert d4 direkt heraus.',
         correct:['Bf4'], playable:['Nf3','c4'],
-        explanation:'Lf4! Der "Londoner Läufer" – wir entwickeln ihn aktiv außerhalb der Bauernkette, bevor wir e3 spielen.',
+        explanation:'Lf4! Der "Londoner Läufer" – aktiv entwickelt, bevor e3 die Kette schließt.',
         hint:'Entwickle den Läufer nach f4, bevor e3 gespielt wird.',
         responses:{'Nf6':.65,'c5':.20,'e6':.15},
         after:{
           'Nf6':{
-            blackExplanation:'Entwickelt den Springer und kontrolliert e4.',
+            blackExplanation:'Entwickelt den Springer und kontrolliert das Zentrumsfeld e4.',
             correct:['e3'], playable:['Nf3'],
-            explanation:'e3 festigt d4 und bildet die Basis unserer soliden Bauernpyramide. Jetzt steht der Lf4 sicher draußen.',
+            explanation:'e3 festigt d4 – die Londoner Bauernpyramide steht. Lf4 ist nun sicher draußen.',
             hint:'e3 – sichert d4 und bereitet Rochade vor.',
             responses:{'e6':.55,'c5':.30,'Bd6':.15},
             after:{
               'e6':{
-                blackExplanation:'Sichert d5 ab und bereitet die Läuferentwicklung vor.',
+                blackExplanation:'Sichert d5 und bereitet die Entwicklung des Königs­läufers vor.',
                 correct:['Nf3'], playable:['Nd2','Bd3'],
-                explanation:'Sf3 kontrolliert das wichtige Feld e5 und bereitet die kurze Rochade vor.',
+                explanation:'Sf3 kontrolliert e5 und bereitet die kurze Rochade vor.',
                 hint:'Springer nach f3.',
                 responses:{'Bd6':.70,'c5':.30},
                 after:{
                   'Bd6':{
-                    blackExplanation:'Fordert den starken Lf4 direkt zum Tausch heraus.',
+                    blackExplanation:'Fordert den starken Lf4 zum sofortigen Tausch heraus.',
                     correct:['Bg3'], playable:['Bxd6'],
-                    explanation:'Lg3! Wir weichen dem Tausch aus. Falls Schwarz auf g3 schlägt, öffnet sich die h-Linie für unseren Turm (hxg3).',
+                    explanation:'Lg3! Tausch verweigert. Schlägt Schwarz auf g3, öffnet sich die h-Linie für unseren Turm.',
                     hint:'Lg3 – nicht tauschen lassen!',
                     responses:{'O-O':.80,'Bxg3':.20},
                     after:{
                       'O-O':{
-                        blackExplanation:'Bringt den König in Sicherheit.',
+                        blackExplanation:'Bringt den König in Sicherheit – klassischer Aufbau.',
                         correct:['Bd3'], playable:['Nbd2','c3'],
-                        explanation:'Ld3 – der Bischof zielt auf h7! Aktive Stellung.',
+                        explanation:'Ld3 – der Bischof zielt auf h7 und verstärkt den Königsangriff.',
                         hint:'Ld3 – zielt auf h7.',
                         responses:{'c5':.70,'Re8':.30},
                         after:{
                           'c5':{
+                            blackExplanation:'Greift d4 an und will das Zentrum aufbrechen.',
                             correct:['c3'], playable:['Nbd2'],
-                            explanation:'c3 – Zentrum halten. Solide und gut.',
+                            explanation:'c3 – Zentrum halten. d4 bleibt unangreifbar.',
                             hint:'c3 sichert d4.',
                             responses:{'Nc6':.90,'b6':.10},
                             after:{
                               'Nc6':{
+                                blackExplanation:'Entwickelt und erhöht den Druck auf d4.',
                                 correct:['Nbd2'],
-                                explanation:'Sbd2 – springt über f1 nach e4 oder g5.',
+                                explanation:'Sbd2 – flexibel, springt über f1 nach e4 oder g5.',
                                 hint:'Sd2 – flexibel.',
                                 responses:{},after:{}
                               }
                             }
                           },
                           'Re8':{
+                            blackExplanation:'Aktiviert den Turm auf der halboffenen e-Linie.',
                             correct:['O-O'],
-                            explanation:'Rochade! König sicher, Turm aktiv.',
+                            explanation:'Rochade! König sicher, Turm auf d1 bald aktiv.',
                             hint:'Rochade!',
                             responses:{},after:{}
                           }
                         }
                       },
                       'Bxg3':{
+                        blackExplanation:'Tauscht den aktiven Londoner Läufer – gibt aber die h-Linie preis.',
                         correct:['hxg3'],
-                        explanation:'hxg3 – die h-Linie öffnet sich für den Turm!',
+                        explanation:'hxg3 – die h-Linie öffnet sich für unseren Turm auf h1!',
                         hint:'hxg3 öffnet die h-Linie.',
                         responses:{'c5':.80,'Nc6':.20},
                         after:{
                           'c5':{
+                            blackExplanation:'Greift das Zentrum an.',
                             correct:['c3'],
-                            explanation:'c3 – Zentrum sichern.',
+                            explanation:'c3 – d4 wird verteidigt, Stellung bleibt solide.',
                             hint:'c3.',
                             responses:{},after:{}
                           }
@@ -749,26 +738,37 @@ const VARIATIONS = [
                     }
                   },
                   'c5':{
+                    blackExplanation:'Greift d4 an – typischer Gegenangriff im Zentrum.',
                     correct:['c3'], playable:['dxc5','Nbd2'],
-                    explanation:'c3 – wir halten d4 und weichen dem Druck aus.',
+                    explanation:'c3 – d4 bleibt stark. Wir weichen dem Druck gelassen aus.',
                     hint:'c3 hält das Zentrum.',
                     responses:{'Nc6':.60,'Qb6':.40},
                     after:{
                       'Qb6':{
+                        blackExplanation:'Greift b2 und d4 gleichzeitig an – Doppeldrohung.',
                         correct:['Qb3'], playable:['Qc1'],
-                        explanation:'Db3! Damentausch beseitigt den Druck auf b2 und d4.',
+                        explanation:'Db3! Damentausch neutralisiert den Druck auf b2 und d4.',
                         hint:'Db3 – tausch die Damen!',
                         responses:{'Qxb3':.80,'Nc6':.20},
                         after:{
                           'Qxb3':{
+                            blackExplanation:'Tauscht die Damen und entlastet seine Stellung.',
                             correct:['axb3'],
-                            explanation:'axb3 – die a-Linie öffnet sich für den Turm.',
+                            explanation:'axb3 – a-Linie öffnet sich für unseren Turm.',
                             hint:'axb3.',
+                            responses:{},after:{}
+                          },
+                          'Nc6':{
+                            blackExplanation:'Entwickelt statt zu tauschen – hält Druck.',
+                            correct:['Nbd2'],
+                            explanation:'Sbd2 – flexible Entwicklung, behält Initiative.',
+                            hint:'Sd2.',
                             responses:{},after:{}
                           }
                         }
                       },
                       'Nc6':{
+                        blackExplanation:'Entwickelt den Springer und kämpft um das Zentrum.',
                         correct:['Nbd2'],
                         explanation:'Sbd2 – flexible Entwicklung.',
                         hint:'Sd2.',
@@ -779,12 +779,14 @@ const VARIATIONS = [
                 }
               },
               'Bd6':{
+                blackExplanation:'Fordert den Londoner Läufer sofort heraus, bevor e3 gespielt wird.',
                 correct:['Bg3'], playable:['Bxd6'],
-                explanation:'Lg3 – verhindert den Läufertausch, behält Druck.',
+                explanation:'Lg3 – Tausch verweigert. Der Läufer bleibt auf dem Brett.',
                 hint:'Lg3 – nicht tauschen lassen.',
                 responses:{'Nf6':1.0},
                 after:{
                   'Nf6':{
+                    blackExplanation:'Entwickelt den Springer – normaler Aufbau.',
                     correct:['e3'],
                     explanation:'e3 – Londoner Struktur vervollständigt.',
                     hint:'e3.',
@@ -793,14 +795,23 @@ const VARIATIONS = [
                 }
               },
               'c5':{
+                blackExplanation:'Greift das Zentrum an – will d4 unter Druck setzen.',
                 correct:['e3'], playable:['c3'],
-                explanation:'e3 – Struktur zuerst, auch gegen c5.',
+                explanation:'e3 – Struktur zuerst. d4 bleibt stabil.',
                 hint:'e3.',
                 responses:{'Nf6':.60,'Nc6':.40},
                 after:{
                   'Nf6':{
+                    blackExplanation:'Entwickelt den Springer.',
                     correct:['Nf3'],
-                    explanation:'Sf3 – Standard-London.',
+                    explanation:'Sf3 – Standard-London, ruhige Entwicklung.',
+                    hint:'Sf3.',
+                    responses:{},after:{}
+                  },
+                  'Nc6':{
+                    blackExplanation:'Entwickelt und erhöht Druck auf d4.',
+                    correct:['Nf3'],
+                    explanation:'Sf3 – weiter normal entwickeln.',
                     hint:'Sf3.',
                     responses:{},after:{}
                   }
@@ -809,28 +820,46 @@ const VARIATIONS = [
             }
           },
           'c5':{
+            blackExplanation:'Greift d4 direkt an – will das Zentrum brechen.',
             correct:['e3'], playable:['c3'],
-            explanation:'e3 – Londoner Struktur, auch gegen c5.',
+            explanation:'e3 – Londoner Struktur aufbauen, auch gegen c5.',
             hint:'e3.',
             responses:{'Nf6':.60,'Nc6':.40},
             after:{
               'Nf6':{
+                blackExplanation:'Entwickelt den Springer.',
                 correct:['Nf3'],
                 explanation:'Sf3 – Standard.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              },
+              'Nc6':{
+                blackExplanation:'Entwickelt und kämpft weiter um das Zentrum.',
+                correct:['Nf3'],
+                explanation:'Sf3 – normale Entwicklung.',
                 hint:'Sf3.',
                 responses:{},after:{}
               }
             }
           },
           'e6':{
+            blackExplanation:'Solide Entwicklung – sichert d5 und öffnet den Königsläufer.',
             correct:['e3'],
             explanation:'e3 – klassisches London gegen e6.',
             hint:'e3.',
             responses:{'Nf6':.80,'c5':.20},
             after:{
               'Nf6':{
+                blackExplanation:'Entwickelt den Springer – Standardaufbau.',
                 correct:['Nf3'],
                 explanation:'Sf3 – weiter normal.',
+                hint:'Sf3.',
+                responses:{},after:{}
+              },
+              'c5':{
+                blackExplanation:'Greift das Zentrum an.',
+                correct:['Nf3'],
+                explanation:'Sf3 – wir entwickeln zuerst, dann reagieren.',
                 hint:'Sf3.',
                 responses:{},after:{}
               }
@@ -839,68 +868,101 @@ const VARIATIONS = [
         }
       },
       'Nf6':{
+        blackExplanation:'Entwickelt den Springer und hält alle Eröffnungsoptionen offen.',
         correct:['Bf4'], playable:['Nf3','d5'],
-        explanation:'Lf4 – das London funktioniert gegen alles!',
+        explanation:'Lf4 – das London funktioniert gegen alles! Immer denselben Plan.',
         hint:'Lf4 – immer der Londoner Bischof.',
-        responses:{'g6':.50,'d5':.30,'e6':.20},
+        responses:{'g6':.50,'d5':.30},
         after:{
           'g6':{
+            blackExplanation:'Kündigt das Königsfianchetto an – Läufer soll nach g7.',
             correct:['e3'],
             explanation:'e3 – die Londoner Mauer gegen Königsindisch.',
             hint:'e3 – Londoner Mauer.',
             responses:{'Bg7':1.0},
             after:{
               'Bg7':{
+                blackExplanation:'Fianchetto komplett – der Läufer zielt auf das Zentrum und den Königsflügel.',
                 correct:['Nf3'],
-                explanation:'Sf3 – ruhige Entwicklung.',
+                explanation:'Sf3 – ruhige Entwicklung, wir ignorieren Schwarz seinen Aufbau.',
                 hint:'Sf3.',
                 responses:{'O-O':.70,'d6':.30},
                 after:{
                   'O-O':{
+                    blackExplanation:'Bringt den König in Sicherheit hinter dem Fianchetto.',
                     correct:['Be2'], playable:['Bd3'],
-                    explanation:'Le2 statt Ld3 – verhindert ...Sh5 Attacke auf Lf4!',
+                    explanation:'Le2 statt Ld3! Auf d3 wäre der Läufer ein Ziel für ...Sh5.',
                     hint:'Le2 – nicht Ld3 gegen Fianchetto.',
                     responses:{'d6':.80,'c5':.20},
                     after:{
                       'd6':{
+                        blackExplanation:'Sichert e5 ab und bereitet den Raumgewinn vor.',
                         correct:['h3'], playable:['O-O'],
-                        explanation:'h3 – Prophylaxe! Gibt Lf4 das Feld h2 gegen ...Sh5.',
+                        explanation:'h3 – Prophylaxe! Gibt Lf4 das Rückzugsfeld h2 gegen ...Sh5.',
                         hint:'h3 schützt den Bischof.',
                         responses:{'Nbd7':.70,'c5':.30},
                         after:{
                           'Nbd7':{
+                            blackExplanation:'Entwickelt und kämpft um das wichtige Feld e5.',
                             correct:['O-O'],
-                            explanation:'Rochade! Vollständige, solide Stellung.',
+                            explanation:'Rochade – vollständig entwickelt, starke Stellung.',
                             hint:'Rochade!',
+                            responses:{},after:{}
+                          },
+                          'c5':{
+                            blackExplanation:'Greift das Zentrum an.',
+                            correct:['c3'],
+                            explanation:'c3 – d4 halten.',
+                            hint:'c3.',
                             responses:{},after:{}
                           }
                         }
+                      },
+                      'c5':{
+                        blackExplanation:'Greift das Zentrum sofort an.',
+                        correct:['c3'],
+                        explanation:'c3 – d4 bleibt solide.',
+                        hint:'c3.',
+                        responses:{},after:{}
                       }
                     }
                   },
                   'd6':{
+                    blackExplanation:'Sichert e5 ab, bevor rochiert wird.',
                     correct:['Be2'],
                     explanation:'Le2 – flexibel gegen Königsinder.',
                     hint:'Le2.',
-                    responses:{},after:{}
+                    responses:{'O-O':1.0},
+                    after:{
+                      'O-O':{
+                        blackExplanation:'Bringt den König hinter das Fianchetto.',
+                        correct:['h3'],
+                        explanation:'h3 – Prophylaxe gegen ...Sh5.',
+                        hint:'h3.',
+                        responses:{},after:{}
+                      }
+                    }
                   }
                 }
               }
             }
           },
           'd5':{
+            blackExplanation:'Wechselt in ein klassisches Damenbauernsystem.',
             correct:['e3'],
             explanation:'e3 – normales London.',
             hint:'e3.',
             responses:{'e6':.60,'Bg4':.40},
             after:{
               'Bg4':{
+                blackExplanation:'Fesselt den Sf3 – lästige Drohung, das Läuferpaar zu gewinnen.',
                 correct:['Be2'], playable:['Nd2','h3'],
-                explanation:'Le2 – verhindert ...Lxf3 und behält das Läuferpaar.',
+                explanation:'Le2 – verhindert ...Lxf3 und bewahrt das Läuferpaar.',
                 hint:'Le2 verhindert ...Lxf3.',
                 responses:{},after:{}
               },
               'e6':{
+                blackExplanation:'Solide Entwicklung, sichert d5 ab.',
                 correct:['Nf3'],
                 explanation:'Sf3 – weiter normal.',
                 hint:'Sf3.',
@@ -911,28 +973,32 @@ const VARIATIONS = [
         }
       },
       'e5':{
+        blackExplanation:'Versucht das Zentrum sofort aufzulösen – aggressiv.',
         correct:['dxe5'], playable:['d5','e3'],
-        explanation:'dxe5 – wir gewinnen Zentrumsfeld und stören Schwarz.',
+        explanation:'dxe5 – wir gewinnen ein Zentrumsfeld und stören Schwarz seinen Aufbau.',
         hint:'dxe5 – schlag im Zentrum.',
         responses:{'Nc6':.60,'Qxd1+':0.40},
         after:{
           'Qxd1+':{
+            blackExplanation:'Tauscht Damen und sucht das vereinfachte Endspiel.',
             correct:['Kxd1'],
             explanation:'Kxd1 – im Londoner Endspiel ist der König aktiv!',
             hint:'Kxd1 – König aktiv im Endspiel.',
             responses:{'Nc6':.80,'Nd7':.20},
             after:{
               'Nc6':{
+                blackExplanation:'Greift den e5-Bauern an und versucht ihn zurückzugewinnen.',
                 correct:['Nf3'],
-                explanation:'Sf3 greift e5 an. Wir stehen besser.',
+                explanation:'Sf3 greift e5 an. Wir stehen besser im Endspiel.',
                 hint:'Sf3 greift e5 an.',
                 responses:{},after:{}
               }
             }
           },
           'Nc6':{
+            blackExplanation:'Entwickelt und greift den e5-Bauern sofort an.',
             correct:['Nf3'], playable:['Bf4','e3'],
-            explanation:'Sf3 – entwickeln und e5 angreifen.',
+            explanation:'Sf3 – entwickeln und e5 verteidigen.',
             hint:'Sf3.',
             responses:{},after:{}
           }
@@ -947,68 +1013,80 @@ const VARIATIONS = [
   intro:['d4','Nf6','Bf4','g6','e3','Bg7','Nf3','O-O','Be2'],
   tree:{
     correct:['d4'], playable:[], hint:'d4.',
-    explanation:'d4 – London Eröffnung.',
+    explanation:'d4 – London Eröffnung. Wir bauen das Zentrum auf.',
     responses:{'Nf6':.80,'g6':.20},
     after:{
       'Nf6':{
-        blackExplanation:'Entwickelt den Springer und bereitet d5 oder g6 vor.',
+        blackExplanation:'Entwickelt den Springer und hält alle Optionen offen – Sf6 ist der flexibelste schwarze Zug.',
         correct:['Bf4'], playable:['Nf3'],
-        explanation:'Lf4 – Das London System ist extrem universell und funktioniert auch gegen indische Aufbauten (Nf6/g6).',
+        explanation:'Lf4 – das London System funktioniert universell, auch gegen indische Aufbauten.',
         hint:'Lf4.',
         responses:{'g6':.70,'e6':.30},
         after:{
           'g6':{
-            blackExplanation:'Kündigt das Fianchetto an – der Läufer soll nach g7.',
+            blackExplanation:'Kündigt das Königsfianchetto an – der Läufer soll nach g7 und das Zentrum kontrollieren.',
             correct:['e3'],
-            explanation:'e3 baut die "Mauer" auf. Gegen g6 ist es wichtig, das Zentrum d4 stabil zu halten.',
+            explanation:'e3 baut die "Mauer" – das Zentrum d4 bleibt stabil gegen den Lg7.',
             hint:'e3.',
             responses:{'Bg7':1.0},
             after:{
               'Bg7':{
-                blackExplanation:'Der Läufer zielt auf das Zentrum (Fianchetto).',
+                blackExplanation:'Fianchetto komplett – der Läufer zielt diagonal auf das Zentrum und den Damenflügel.',
                 correct:['Nf3'],
-                explanation:'Sf3 – Wir ignorieren den schwarzen Aufbau und entwickeln uns stabil.',
+                explanation:'Sf3 – stabile Entwicklung, wir ignorieren den schwarzen Aufbau.',
                 hint:'Sf3.',
                 responses:{'O-O':.70,'d6':.30},
                 after:{
                   'O-O':{
+                    blackExplanation:'Bringt den König hinter den Fianchetto-Läufer in Sicherheit.',
                     correct:['Be2'], playable:['Bd3'],
-                    explanation:'Le2!! Ein Schlüsselzug gegen Königsindisch. Auf d3 wäre der Läufer ein Ziel für ...Sh5. Auf e2 steht er sicher und lässt Weiß flexibel.',
+                    explanation:'Le2! Schlüsselzug. Auf d3 wäre der Läufer ein Ziel für ...Sh5xf4.',
                     hint:'Le2 – nicht Ld3 gegen Fianchetto!',
                     responses:{'d6':.75,'c5':.25},
                     after:{
                       'd6':{
-                        blackExplanation:'Sichert e5 ab und bereitet den Raumgewinn vor.',
+                        blackExplanation:'Sichert e5 ab und bereitet den Raumgewinn im Zentrum vor.',
                         correct:['h3'], playable:['O-O'],
-                        explanation:'h3! Wichtige Prophylaxe. Wir schaffen ein Rückzugsfeld auf h2 für unseren Lf4, falls Schwarz ihn mit ...Sh5 angreift.',
+                        explanation:'h3 – Prophylaxe! Schafft Rückzugsfeld h2 für Lf4 gegen ...Sh5.',
                         hint:'h3 schützt Lf4.',
                         responses:{'Nbd7':.70,'c5':.30},
                         after:{
                           'Nbd7':{
+                            blackExplanation:'Entwickelt und kämpft um das strategisch wichtige Feld e5.',
                             correct:['O-O'],
-                            explanation:'Rochade – alles entwickelt, starke Stellung.',
+                            explanation:'Rochade – alles entwickelt, starke kompakte Stellung.',
                             hint:'Rochade!',
+                            responses:{},after:{}
+                          },
+                          'c5':{
+                            blackExplanation:'Greift das Zentrum an, will d4 unter Druck setzen.',
+                            correct:['c3'],
+                            explanation:'c3 – Zentrum halten.',
+                            hint:'c3.',
                             responses:{},after:{}
                           }
                         }
                       },
                       'c5':{
+                        blackExplanation:'Greift d4 sofort an.',
                         correct:['c3'],
-                        explanation:'c3 – Zentrum halten.',
+                        explanation:'c3 – d4 sichern.',
                         hint:'c3.',
                         responses:{},after:{}
                       }
                     }
                   },
                   'd6':{
+                    blackExplanation:'Sichert e5 ab, bevor er rochiert.',
                     correct:['Be2'],
-                    explanation:'Le2 – flexibel.',
+                    explanation:'Le2 – flexibel gegen Königsinder.',
                     hint:'Le2.',
                     responses:{'O-O':1.0},
                     after:{
                       'O-O':{
+                        blackExplanation:'Bringt den König in Sicherheit.',
                         correct:['h3'],
-                        explanation:'h3 – Prophylaxe.',
+                        explanation:'h3 – Prophylaxe gegen ...Sh5.',
                         hint:'h3.',
                         responses:{},after:{}
                       }
@@ -1019,12 +1097,14 @@ const VARIATIONS = [
             }
           },
           'e6':{
+            blackExplanation:'Solide Entwicklung – klassische Struktur statt Fianchetto.',
             correct:['e3'],
-            explanation:'e3 – normales London.',
+            explanation:'e3 – normales London, auch gegen e6.',
             hint:'e3.',
             responses:{'d5':.80,'b6':.20},
             after:{
               'd5':{
+                blackExplanation:'Besetzt das Zentrum klassisch – wechselt in eine Standard-Londoner Stellung.',
                 correct:['Nf3'],
                 explanation:'Sf3 – klassisches London.',
                 hint:'Sf3.',
@@ -1039,60 +1119,70 @@ const VARIATIONS = [
 },
 {
   id:'london_bishop', name:'Bischofsangriff vs …Lf5', icon:'⚔', importance:5,
-  idea:'Wenn Schwarz unseren Londoner Bischof mit ...Lf5 oder ...Lg4 herausfordert – ruhig bleiben und solid entwickeln.',
+  idea:'Wenn Schwarz unseren Londoner Bischof mit ...Lf5 herausfordert – ruhig bleiben und solid entwickeln.',
   intro:['d4','d5','Bf4','Bf5','e3','e6','Nf3'],
   tree:{
     correct:['d4'], playable:[], hint:'d4.',
-    explanation:'d4.',
+    explanation:'d4 – das London beginnt.',
     responses:{'d5':.70,'Nf6':.20},
     after:{
       'd5':{
-        blackExplanation:'Schwarz besetzt das Zentrum.',
+        blackExplanation:'Schwarz besetzt das Zentrum und fordert d4 heraus.',
         correct:['Bf4'], playable:['Nf3'],
-        explanation:'Lf4 – London!',
+        explanation:'Lf4 – London! Wir entwickeln den Läufer aktiv.',
         hint:'Lf4.',
         responses:{'Bf5':.50,'Nf6':.50},
         after:{
           'Bf5':{
-            blackExplanation:'Fordert unseren Läufer mit symmetrischer Entwicklung heraus.',
+            blackExplanation:'Symmetrische Entwicklung – fordert unseren Läufer mit demselben Zug heraus.',
             correct:['e3'], playable:['Bd3','Nc3'],
-            explanation:'e3 – ruhig. Schwarz Lf5 stört uns nicht.',
+            explanation:'e3 – ganz ruhig. Schwarz Lf5 stört uns nicht. Wir entwickeln uns solide weiter.',
             hint:'e3 – lass dich nicht stören.',
             responses:{'e6':.60,'Nd7':.40},
             after:{
               'e6':{
-                blackExplanation:'Sichert d5 und bereitet ...Le7/Sf6 vor.',
+                blackExplanation:'Sichert d5 und bereitet ...Le7 und Sf6 vor.',
                 correct:['Nf3'],
-                explanation:'Sf3 – normale Entwicklung.',
+                explanation:'Sf3 – normale Entwicklung, Kontrolle über e5.',
                 hint:'Sf3.',
                 responses:{'Nd7':.70,'Nf6':.30},
                 after:{
                   'Nd7':{
-                    blackExplanation:'Springerentwicklung, kämpft um das Feld e5.',
+                    blackExplanation:'Entwickelt den Springer und kämpft um das Schlüsselfeld e5.',
                     correct:['Bd3'], playable:['Be2'],
-                    explanation:'Ld3 – provoziert den günstigen Läufertausch!',
+                    explanation:'Ld3 – provoziert den für uns günstigen Läufertausch!',
                     hint:'Ld3 – Bischöfe tauschen ist gut für Weiß.',
                     responses:{'Bxd3':.80,'Bg6':.20},
                     after:{
                       'Bxd3':{
+                        blackExplanation:'Tauscht den Läufer – gibt aber die Kontrolle über die hellen Felder auf.',
                         correct:['Qxd3'],
-                        explanation:'Dxd3 – aktive Dame, Druck auf d5.',
+                        explanation:'Dxd3 – aktive Dame auf der Diagonale, Druck auf d5.',
                         hint:'Dxd3.',
                         responses:{},after:{}
                       }
                     }
+                  },
+                  'Nf6':{
+                    blackExplanation:'Entwickelt den Springer auf das aktive Feld f6.',
+                    correct:['Bd3'], playable:['Be2'],
+                    explanation:'Ld3 – provoziert erneut den günstigen Läufertausch.',
+                    hint:'Ld3.',
+                    responses:{},after:{}
                   }
                 }
               },
               'Nd7':{
+                blackExplanation:'Entwickelt sofort den Springer, kämpft um e5.',
                 correct:['Nf3'], playable:['Bd3'],
                 explanation:'Sf3 – entwickeln und e5 kontrollieren.',
                 hint:'Sf3.',
                 responses:{'e6':1.0},
                 after:{
                   'e6':{
+                    blackExplanation:'Sichert d5 ab und vervollständigt den Aufbau.',
                     correct:['Bd3'],
-                    explanation:'Ld3 – Bischöfe tauschen.',
+                    explanation:'Ld3 – Bischöfe tauschen provozieren.',
                     hint:'Ld3.',
                     responses:{},after:{}
                   }
@@ -1101,20 +1191,23 @@ const VARIATIONS = [
             }
           },
           'Nf6':{
+            blackExplanation:'Entwickelt den Springer statt den Läufer – wartet ab.',
             correct:['e3'], playable:['Nf3'],
             explanation:'e3 – normales London.',
             hint:'e3.',
             responses:{'e6':.70,'Bg4':.30},
             after:{
               'Bg4':{
+                blackExplanation:'Fesselt den Sf3 – will das Läuferpaar gewinnen durch ...Lxf3.',
                 correct:['Be2'], playable:['Nd2','h3'],
                 explanation:'Le2 verhindert ...Lxf3 – Läuferpaar behalten!',
                 hint:'Le2.',
                 responses:{},after:{}
               },
               'e6':{
+                blackExplanation:'Solide Entwicklung, sichert d5 ab.',
                 correct:['Nf3'],
-                explanation:'Sf3 – weiter.',
+                explanation:'Sf3 – weiter normal entwickeln.',
                 hint:'Sf3.',
                 responses:{},after:{}
               }
